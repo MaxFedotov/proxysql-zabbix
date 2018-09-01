@@ -1,14 +1,14 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python2.7
 import sys
 import json
 import mysql.connector
 import argparse
+import ConfigParser
 
 #constants
-proxysql_host     = "127.0.0.1"
-proxysql_port     = 6032
-proxysql_user     = "admin"
-proxysql_password = "admin"
+proxysql_host = "127.0.0.1"
+proxysql_port = 6032
+conf_file     = "/var/lib/zabbix/.my.cnf"
 
 class proxysql:
         def __init__(self, proxysql_host, proxysql_port, proxysql_user, proxysql_password):
@@ -18,53 +18,60 @@ class proxysql:
         def __del__(self):
                 self.connection.close()
 
+        def __printf(self, str):
+            print str
+
         def __query(self, sql):
                 self.cursor.execute(sql)
                 return self.cursor.fetchall()
 
         def get_connection_pool(self, args):
                 data = self.__query("""SELECT %s
-                                       FROM stats.stats_mysql_connection_pool
+                                       FROM stats_mysql_connection_pool
                                        WHERE srv_host = "%s" and srv_port = "%s";""" % (args.param,args.host, args.port))[0]
-                return (print(data[args.param]))
+                return (self.__printf(data[args.param]))
 
         def discover_mysql_servers(self,args):
                 servers = {"data": []}
-                data = self.__query("""SELECT DISTINCT hostname as `{#SERVERNAME}`,
-                                                       port as `{#SERVERPORT}`
-                                       FROM runtime_mysql_servers;""")
+                data = self.__query("""SELECT DISTINCT srv_host as `{#SERVERNAME}`,
+                                                       srv_port as `{#SERVERPORT}`
+                                       FROM stats_mysql_connection_pool;""")
                 for d in data:
                         servers["data"].append(d)
-                return print(json.dumps(servers, indent=2, sort_keys=True))
+                return (self.__printf(json.dumps(servers, indent=2, sort_keys=True)))
 
         def discover_mysql_users(self, args):
                 users = {"data": []}
                 data = self.__query("""SELECT username as `{#USERNAME}`
-                                       FROM stats.stats_mysql_users
+                                       FROM stats_mysql_users
                                        GROUP BY username;""")
                 for d in data:
                         users["data"].append(d)
-                return print(json.dumps(users, indent=2, sort_keys=True))
+                return (self.__printf(json.dumps(users, indent=2, sort_keys=True)))
 
 
         def get_proxysql_cluster(self, args):
                 data = self.__query("""SELECT CAST(COUNT(DISTINCT(checksum)) AS INT) as checksum
-                                       FROM stats.stats_proxysql_servers_checksums
+                                       FROM stats_proxysql_servers_checksums
                                        WHERE name in ("%s");""" % (args.param))[0]
-                return (print(data["checksum"]))
+                return (self.__printf(data["checksum"]))
 
         def get_mysql_users_stats(self, args):
                 data = self.__query("""SELECT %s
-                                       FROM stats.stats_mysql_users
+                                       FROM stats_mysql_users
                                        WHERE username = "%s";""" % (args.param, args.username))[0]
-                return (print(data[args.param]))
+                return (self.__printf(data[args.param]))
 
         def get_global_variables(self, args):
                 data = self.__query("""SELECT Variable_Value
-                                       FROM stats.stats_mysql_global
+                                       FROM stats_mysql_global
                                        WHERE Variable_Name = '%s';""" % (args.param))[0]
-                return (print(data["Variable_Value"]))
+                return (self.__printf(data["Variable_Value"]))
 
+config = ConfigParser.ConfigParser()
+config.readfp(open(conf_file))
+proxysql_user = config.get('client', 'user')
+proxysql_password = config.get('client', 'password')
 
 pcon = proxysql(proxysql_host, proxysql_port, proxysql_user, proxysql_password)
 parser = argparse.ArgumentParser(prog="proxysql")
