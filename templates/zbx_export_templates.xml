@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.2</version>
-    <date>2018-09-01T19:35:55Z</date>
+    <date>2018-09-29T22:36:01Z</date>
     <groups>
         <group>
-            <name>Templates</name>
+            <name>aaa_Group_z_Templates</name>
         </group>
     </groups>
     <templates>
@@ -14,7 +14,7 @@
             <description/>
             <groups>
                 <group>
-                    <name>Templates</name>
+                    <name>aaa_Group_z_Templates</name>
                 </group>
             </groups>
             <applications>
@@ -24,7 +24,7 @@
             </applications>
             <items>
                 <item>
-                    <name>Proxysql cluster number of mysql_query_rules versions</name>
+                    <name>Proxysql mysql_query_rules out of sync with cluster</name>
                     <type>0</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
@@ -67,7 +67,7 @@
                     <logtimefmt/>
                 </item>
                 <item>
-                    <name>Proxysql cluster number of mysql_servers versions</name>
+                    <name>Proxysql mysql_servers out of sync with cluster</name>
                     <type>0</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
@@ -110,7 +110,7 @@
                     <logtimefmt/>
                 </item>
                 <item>
-                    <name>Proxysql cluster number of mysql_users versions</name>
+                    <name>Proxysql mysql_users out of sync with cluster</name>
                     <type>0</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
@@ -153,7 +153,7 @@
                     <logtimefmt/>
                 </item>
                 <item>
-                    <name>Proxysql cluster number of proxysql_servers versions</name>
+                    <name>Proxysql proxysql_servers out of sync with cluster</name>
                     <type>0</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
@@ -162,6 +162,49 @@
                     <delay>90</delay>
                     <history>90</history>
                     <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>ProxySQL</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>ProxySQL_PORT_Simple_check</name>
+                    <type>0</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>proxysql.ping</key>
+                    <delay>60</delay>
+                    <history>7</history>
+                    <trends>21</trends>
                     <status>0</status>
                     <value_type>3</value_type>
                     <allowed_hosts/>
@@ -973,7 +1016,7 @@
                             <multiplier>0</multiplier>
                             <snmp_oid/>
                             <key>proxysql.pools[{#SERVERNAME},{#SERVERPORT},status]</key>
-                            <delay>90</delay>
+                            <delay>60</delay>
                             <history>90</history>
                             <trends>0</trends>
                             <status>0</status>
@@ -1025,7 +1068,13 @@
                             <description/>
                             <type>0</type>
                             <manual_close>1</manual_close>
-                            <dependencies/>
+                            <dependencies>
+                                <dependency>
+                                    <name>ProxySQL_TCP_PORT</name>
+                                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                                    <recovery_expression/>
+                                </dependency>
+                            </dependencies>
                             <tags/>
                         </trigger_prototype>
                         <trigger_prototype>
@@ -1037,11 +1086,17 @@
                             <correlation_tag/>
                             <url/>
                             <status>0</status>
-                            <priority>4</priority>
+                            <priority>2</priority>
                             <description/>
                             <type>0</type>
                             <manual_close>1</manual_close>
-                            <dependencies/>
+                            <dependencies>
+                                <dependency>
+                                    <name>ProxySQL_TCP_PORT</name>
+                                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                                    <recovery_expression/>
+                                </dependency>
+                            </dependencies>
                             <tags/>
                         </trigger_prototype>
                         <trigger_prototype>
@@ -1053,11 +1108,17 @@
                             <correlation_tag/>
                             <url/>
                             <status>0</status>
-                            <priority>4</priority>
+                            <priority>2</priority>
                             <description/>
                             <type>0</type>
                             <manual_close>1</manual_close>
-                            <dependencies/>
+                            <dependencies>
+                                <dependency>
+                                    <name>ProxySQL_TCP_PORT</name>
+                                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                                    <recovery_expression/>
+                                </dependency>
+                            </dependencies>
                             <tags/>
                         </trigger_prototype>
                     </trigger_prototypes>
@@ -1196,11 +1257,17 @@
                             <correlation_tag/>
                             <url/>
                             <status>0</status>
-                            <priority>4</priority>
+                            <priority>2</priority>
                             <description/>
                             <type>0</type>
                             <manual_close>0</manual_close>
-                            <dependencies/>
+                            <dependencies>
+                                <dependency>
+                                    <name>ProxySQL_TCP_PORT</name>
+                                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                                    <recovery_expression/>
+                                </dependency>
+                            </dependencies>
                             <tags/>
                         </trigger_prototype>
                     </trigger_prototypes>
@@ -1216,70 +1283,6 @@
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template_Proxysql:proxysql.clusters[mysql_query_rules].last(#2)}&gt;1</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Proxysql cluster out of sync. More than one version of mysql_query_rules exists in cluster</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>4</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template_Proxysql:proxysql.clusters[mysql_servers].last(#2)}&gt;1</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Proxysql cluster out of sync. More than one version of mysql_servers exists in cluster</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>4</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template_Proxysql:proxysql.clusters[mysql_users].last(#2)}&gt;1</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Proxysql cluster out of sync. More than one version of mysql_users exists in cluster</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>4</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template_Proxysql:proxysql.clusters[proxysql_servers].last(#2)}&gt;1</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Proxysql cluster out of sync. More than one version of proxysql_servers exists in cluster</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>4</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
             <expression>{Template_Proxysql:proxysql.variables[Client_Connections_aborted].last(#2)}&gt;10</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
@@ -1288,10 +1291,120 @@
             <correlation_tag/>
             <url/>
             <status>0</status>
-            <priority>4</priority>
+            <priority>2</priority>
             <description/>
             <type>0</type>
             <manual_close>0</manual_close>
+            <dependencies>
+                <dependency>
+                    <name>ProxySQL_TCP_PORT</name>
+                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                    <recovery_expression/>
+                </dependency>
+            </dependencies>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template_Proxysql:proxysql.clusters[mysql_query_rules].last(#2)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>Proxysql mysql_query_rules out of sync with cluster</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies>
+                <dependency>
+                    <name>ProxySQL_TCP_PORT</name>
+                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                    <recovery_expression/>
+                </dependency>
+            </dependencies>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template_Proxysql:proxysql.clusters[mysql_servers].last(#2)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>Proxysql mysql_servers out of sync with cluster</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies>
+                <dependency>
+                    <name>ProxySQL_TCP_PORT</name>
+                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                    <recovery_expression/>
+                </dependency>
+            </dependencies>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template_Proxysql:proxysql.clusters[mysql_users].last(#2)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>Proxysql mysql_users out of sync with cluster</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies>
+                <dependency>
+                    <name>ProxySQL_TCP_PORT</name>
+                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                    <recovery_expression/>
+                </dependency>
+            </dependencies>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template_Proxysql:proxysql.clusters[proxysql_servers].last(#2)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>Proxysql proxysql_servers out of sync with cluster</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies>
+                <dependency>
+                    <name>ProxySQL_TCP_PORT</name>
+                    <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+                    <recovery_expression/>
+                </dependency>
+            </dependencies>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template_Proxysql:proxysql.ping.last(0)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>ProxySQL_TCP_PORT</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>1</manual_close>
             <dependencies/>
             <tags/>
         </trigger>

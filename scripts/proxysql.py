@@ -4,19 +4,31 @@ import json
 import mysql.connector
 import argparse
 import ConfigParser
+import socket
 
 #constants
 proxysql_host = "127.0.0.1"
 proxysql_port = 6032
-conf_file     = "/var/lib/zabbix/.my.cnf"
+conf_file     = '/var/lib/zabbix/.my.cnf'
 
 class proxysql:
         def __init__(self, proxysql_host, proxysql_port, proxysql_user, proxysql_password):
+            try:
                 self.connection = mysql.connector.connect(host=proxysql_host, port=proxysql_port, user=proxysql_user, passwd=proxysql_password, db="stats")
                 self.cursor = self.connection.cursor(dictionary=True)
+            except mysql.connector.errors.DatabaseError:
+                pass
 
         def __del__(self):
-                self.connection.close()
+            self.connection.close()
+
+        def ping(self,args):
+            try:
+                self.connection.is_connected()
+            except AttributeError:
+                return (self.__printf(0))
+            else:
+                return (self.__printf(1))
 
         def __printf(self, str):
             print str
@@ -51,10 +63,19 @@ class proxysql:
 
 
         def get_proxysql_cluster(self, args):
-                data = self.__query("""SELECT CAST(COUNT(DISTINCT(checksum)) AS INT) as checksum
-                                       FROM stats_proxysql_servers_checksums
-                                       WHERE name in ("%s");""" % (args.param))[0]
-                return (self.__printf(data["checksum"]))
+                server_checksum = self.__query("""SELECT checksum
+                                                  FROM stats_proxysql_servers_checksums
+                                                  WHERE hostname in( "%s") and  name in ("%s");""" % (socket.getfqdn(),args.param))[0]['checksum']
+                total_servers  = self.__query("""SELECT CAST(COUNT(checksum) AS INT) as checksum
+                                                 FROM stats_proxysql_servers_checksums
+                                                 WHERE name in ("%s");""" % (args.param))[0]['checksum']
+                server_checksum_versions = self.__query("""SELECT CAST(COUNT(checksum) AS INT) as checksum
+                                                           FROM stats_proxysql_servers_checksums
+                                                           WHERE checksum = "%s" and name in ("%s");""" % (server_checksum,args.param))[0]['checksum']
+                if int(server_checksum_versions) == int(total_servers) or float(server_checksum_versions) > float(total_servers) * 0.6:
+                    return (self.__printf(1))
+                else:
+                    return (self.__printf(0))
 
         def get_mysql_users_stats(self, args):
                 data = self.__query("""SELECT %s
@@ -86,6 +107,9 @@ get_pools.add_argument("host")
 get_pools.add_argument("port")
 get_pools.add_argument("param", choices=["status", "ConnUsed", "ConnFree", "ConnOK", "ConnERR", "Latency_us"])
 get_pools.set_defaults(func=pcon.get_connection_pool)
+
+ping = subparsers.add_parser("ping", help="check ProxySQL connectivity")
+ping.set_defaults(func=pcon.ping)
 
 get_variables = subparsers.add_parser("variable", help="get metrics from stats.stats_mysql_global")
 get_variables.add_argument("param", choices=["Client_Connections_aborted","Client_Connections_connected", "Client_Connections_created", "Server_Connections_aborted",
